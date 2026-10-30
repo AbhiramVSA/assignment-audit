@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/audit-trail-mark.svg" alt="A text bubble with a check mark and revision lines" width="112" />
+  <img src="assets/assignment-audit-logo.png" alt="Revision trail document with a completed audit check" width="200" />
 </p>
 
 <h1 align="center">Mini Audit Trail Generator</h1>
