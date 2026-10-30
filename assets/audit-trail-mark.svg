@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Text audit trail</title>
+  <defs>
+    <linearGradient id="track" x1="24" y1="20" x2="101" y2="107" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#75e0cc"/>
+      <stop offset="1" stop-color="#77a8ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="#10182b"/>
+  <path d="M38 26h40a16 16 0 0 1 16 16v13a16 16 0 0 1-16 16H58L40 89V71h-2a16 16 0 0 1-16-16V42a16 16 0 0 1 16-16Z" fill="none" stroke="url(#track)" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+  <path d="m51 47 8 8 15-16M55 97h29m-29 10h20" fill="none" stroke="#f4c16d" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+</svg>
