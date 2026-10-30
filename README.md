@@ -1,86 +1,67 @@
-# Mini Audit Trail Generator
+<p align="center">
+  <img src="assets/audit-trail-mark.svg" alt="A text bubble with a check mark and revision lines" width="112" />
+</p>
 
-Single-page React UI backed by an Express API that tracks text edits, computes compact diff summaries (unique added/removed words, length deltas), and persists them inside a JSON file with atomic writes.
+<h1 align="center">Mini Audit Trail Generator</h1>
 
-## Project structure
+<p align="center">A small React and Express app that saves text revisions and shows a word and length summary for each change.</p>
 
-```
-.
-├─ backend/           # Express API + diff logic + JSON storage
-│  ├─ data/versions.json
-│  ├─ index.js
-│  ├─ lib/
-│  │  ├─ diff.js
-│  │  ├─ diff.test.js
-│  │  └─ storage.js
-│  └─ routes/versions.js
-├─ frontend/          # React SPA (CRA) with Editor + VersionsList
-│  ├─ public/index.html
-│  └─ src/
-│     ├─ App.jsx
-│     ├─ components/
-│     │  ├─ Editor.jsx
-│     │  └─ VersionsList.jsx
-│     ├─ index.js
-│     └─ styles.css
-├─ package.json       # root scripts, concurrently wiring
-└─ run-dev.ps1        # helper script that forwards to `npm run dev`
+<p align="center">
+  <a href="#run-locally">Run locally</a> ·
+  <a href="#api">API</a> ·
+  <a href="#storage-and-scope">Storage and scope</a> ·
+  <a href="#tests">Tests</a>
+</p>
+
+## Run locally
+
+The app uses a React frontend, an Express API, and a JSON file for revision history.
+
+```bash
+git clone https://github.com/AbhiramVSA/assignment-audit.git
+cd assignment-audit
+npm install
+npm run setup
+npm run dev
 ```
 
-## Getting started
+Open <http://localhost:3000>. The frontend uses `http://localhost:4000` for the API by default. Set `REACT_APP_API_BASE` before starting the frontend to use another API address.
 
-1. **Install dependencies**
-   ```powershell
-   npm install            # installs root tooling (concurrently)
-   npm run setup          # installs backend + frontend packages
-   ```
-2. **Run the full stack** (backend on `4000`, frontend on `3000` with CRA proxy-free fetches):
-   ```powershell
-   npm run dev
-   # or
-   ./run-dev.ps1
-   ```
-3. Open http://localhost:3000 and start typing.
+## What it records
+
+Each saved version returns a timestamp, the words added or removed, and the old and new character counts. The API accepts text up to 10,000 characters. The editor and history list run in the browser; the backend calculates each summary and persists the version history.
 
 ## API
 
-- `POST /save-version`
-  - Body: `{ "content": "string up to 10k chars" }`
-  - Response: version payload with `{ id, timestamp (YYYY-MM-DD HH:mm), addedWords[], removedWords[], oldLength, newLength }`
-- `GET /versions`
-  - Returns newest → oldest list in same shape.
+| Method | Route | Result |
+|---|---|---|
+| `POST` | `/save-version` | Save a text version and return its summary. Body: `{"content":"updated text"}` |
+| `GET` | `/versions` | Return saved versions from newest to oldest. |
+| `GET` | `/healthz` | Return `{"status":"ok"}` when the API is running. |
 
-`curl` samples:
+Example:
+
 ```bash
 curl -X POST http://localhost:4000/save-version \
   -H "Content-Type: application/json" \
   -d '{"content":"first text"}'
-
-curl http://localhost:4000/versions
 ```
 
-## Diff + storage notes
+## Storage and scope
 
-- Tokens normalize by lowercasing and stripping punctuation except apostrophes. Arrays hold unique words only. Length metrics use raw character counts to mirror the assignment example numbers.
-- JSON persistence happens via temp-file writes + rename, queued through a naive promise chain so concurrent saves serialize. A `content` field is kept server-side only to evaluate future diffs.
-- TODO for later: replace the JSON layer with SQLite and add optimistic locking once multiple users hit the endpoint simultaneously.
+The backend stores version history in `backend/data/versions.json`. It writes through a temporary file before replacing the data file. This is a small single-user project. It has no authentication or per-user history, so do not expose the API to untrusted users.
 
-## Testing
+The diff summary compares word counts without punctuation and reports raw character counts. The API response omits the saved text, although the backend keeps it in its local history file to compare the next version.
 
-Jest unit tests live in `backend/lib/diff.test.js`.
-```powershell
+## Tests
+
+Run the backend unit tests:
+
+```bash
 cd backend
 npm test
 ```
 
-## Deployment hints
+## License
 
-- **Backend**: deploy to Render/Railway as a Node service (set `PORT`, keep `data/versions.json` on disk or switch to SQLite for stateless hosts).
-- **Frontend**: deploy to Vercel/Netlify via `npm run build` and point it to the backend URL through `REACT_APP_API_BASE`.
-- Document timezone expectations (currently `YYYY-MM-DD HH:mm` using server locale). Adjust to ISO strings and persist UTC when moving to multi-region hosting.
-
-## Next steps worth considering
-
-1. Add basic auth + per-user namespaces before exposing to real users.
-2. Streamline diffs by showing previews client-side before save.
-3. Promote JSON storage to SQLite/Postgres for safer multi-instance deployments.
+No license file is included in this repository.
